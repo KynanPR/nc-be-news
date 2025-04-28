@@ -31,6 +31,15 @@ const fullArticleShape = Object.assign(
   partArticleShape
 );
 
+const commentShape = {
+  comment_id: expect.toBeInteger(),
+  article_id: expect.toBeInteger(),
+  body: expect.toBeString(),
+  votes: expect.toBeInteger(),
+  author: expect.toBeString(),
+  created_at: expect.toBeDateString(),
+};
+
 describe("Bad Endpoint", () => {
   test("404: Responds with not found message", async () => {
     const { body } = await testReq(server)
@@ -119,5 +128,36 @@ describe("GET /api/articles", () => {
     const { body } = await testReq(server).get("/api/articles").expect(404);
 
     expect(body.message).toBe("No articles found");
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with array of comments on the specified article sorted decending by creation date", async () => {
+    const {
+      body: { comments },
+    } = await testReq(server).get("/api/articles/1/comments").expect(200);
+
+    expect(comments).toBeArrayOfSize(11);
+    expect(comments.every((comment) => comment.article_id === 1)).toBeTrue();
+    const sorted = comments.toSorted((thisComment, nextComment) => {
+      const comment1Time = new Date(thisComment.created_at);
+      const comment2Time = new Date(nextComment.created_at);
+      return comment2Time - comment1Time;
+    });
+    expect(sorted).toEqual(comments);
+  });
+  test("404: Responds with 'none found' error if article has no comments", async () => {
+    const { body } = await testReq(server)
+      .get("/api/articles/2/comments")
+      .expect(404);
+
+    expect(body.message).toBe(`No comments found on article with ID: 2`);
+  });
+  test("404: Responds with a 'no such article' error if specified article doesn't exist", async () => {
+    const { body } = await testReq(server)
+      .get("/api/articles/99999/comments")
+      .expect(404);
+
+    expect(body.message).toBe(`Can't find article with ID: 99999`);
   });
 });

@@ -47,3 +47,26 @@ exports.selectAllArticles = async () => {
 
   return articles;
 };
+
+exports.selectCommentsOfArticle = async (articleId) => {
+  const { rows: comments } = await db.query(
+    `
+      SELECT *
+      FROM comments
+      WHERE
+         article_id = $1
+      ORDER BY
+         created_at DESC;
+      `,
+    [articleId]
+  );
+
+  if (!comments.length) {
+    throw new ApiError(
+      404,
+      `No comments found on article with ID: ${articleId}`
+    );
+  }
+
+  return comments;
+};
