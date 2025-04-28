@@ -1,10 +1,13 @@
 const express = require("express");
 const { getApiEndpoints } = require("./controllers/api.controller");
+const { getAllTopics } = require("./controllers/topics.controller");
 const server = express();
 
 server.use(express.json());
 
 server.get("/api", getApiEndpoints);
+
+server.get("/api/topics", getAllTopics);
 
 server.use((err, req, res, next) => {
   if (err.status && err.message) {
