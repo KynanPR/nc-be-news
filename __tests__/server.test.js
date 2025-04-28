@@ -14,18 +14,22 @@ const topicShape = {
   description: expect.any(String),
 };
 
-const articleShape = {
+const partArticleShape = {
   article_id: expect.any(Number),
   title: expect.any(String),
   topic: expect.any(String),
   author: expect.any(String),
-  body: expect.any(String),
   created_at: expect.stringMatching(
     /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/
   ),
   votes: expect.any(Number),
   article_img_url: expect.any(String),
 };
+
+const fullArticleShape = Object.assign(
+  { body: expect.any(String) },
+  partArticleShape
+);
 
 describe("Bad Endpoint", () => {
   test("404: Responds with not found message", async () => {
@@ -69,9 +73,8 @@ describe("GET /api/articles/:article_id", () => {
     const {
       body: { article },
     } = await testReq(server).get("/api/articles/1").expect(200);
-    console.log(article);
 
-    expect(article).toMatchObject(articleShape);
+    expect(article).toMatchObject(fullArticleShape);
     expect(article).toEqual({
       article_id: 1,
       title: "Living in the shadow of a great man",
@@ -89,5 +92,32 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/99999")
       .expect(404);
     expect(body.message).toBe("Can't find article with ID: 99999");
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: Responds with array of all articles sorted by date without article body", async () => {
+    const {
+      body: { articles },
+    } = await testReq(server).get("/api/articles").expect(200);
+
+    expect(articles).toHaveLength(13);
+    articles.forEach((article) => {
+      expect(article).toMatchObject(partArticleShape);
+      expect(typeof article.comment_count).toBe("number");
+      expect(article).not.toHaveProperty("body");
+    });
+    const sorted = articles.toSorted((thisArticle, nextArticle) => {
+      const article1Time = new Date(thisArticle.created_at);
+      const article2Time = new Date(nextArticle.created_at);
+      return article2Time - article1Time;
+    });
+    expect(sorted).toEqual(articles);
+  });
+  test("404: Resonds with a 'none found' error if there are no articles in database", async () => {
+    await db.query("DELETE FROM articles");
+    const { body } = await testReq(server).get("/api/articles").expect(404);
+
+    expect(body.message).toBe("No articles found");
   });
 });
