@@ -26,13 +26,12 @@ describe("Bad Endpoint", () => {
 });
 
 describe("GET /api", () => {
-  test("200: Responds with an object detailing the documentation for each endpoint", () => {
-    return testReq(server)
-      .get("/api")
-      .expect(200)
-      .then(({ body: { endpoints } }) => {
-        expect(endpoints).toEqual(endpointsJson);
-      });
+  test("200: Responds with an object detailing the documentation for each endpoint", async () => {
+    const {
+      body: { endpoints },
+    } = await testReq(server).get("/api").expect(200);
+
+    expect(endpoints).toEqual(endpointsJson);
   });
 });
 
