@@ -1,12 +1,30 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves up a JSON representation of all the available endpoints of the API"
   },
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all topics",
     "queries": [],
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
+    }
+  },
+  "GET /api/article/:article_id": {
+    "description": "Serves article object with specified ID",
+    "queries": [],
+    "exampleResponse": {
+      "article": [
+        {
+          "article_id": 1,
+          "title": "Title of Article",
+          "topic": "interesting",
+          "author": "Author McAuthorface",
+          "body": "Read me. Read me. Read me.",
+          "created_at": "2020-07-09T20:11:00.000Z",
+          "votes": 100,
+          "article_img_url": "https://AVeryRealUrl.trust"
+        }
+      ]
     }
   }
 }
