@@ -41,5 +41,27 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "Serves an array of all comments on specified article",
+    "exampleResponse": {
+      "message": "All comments on article of ID: 23",
+      "comments": [
+        {
+          "comment_id": 5,
+          "article_id": 23,
+          "body": "This is a comment",
+          "votes": 2,
+          "created_at": "2020-07-09T20:11:00.000Z"
+        },
+        {
+          "comment_id": 2,
+          "article_id": 23,
+          "body": "This is also a comment",
+          "votes": 66,
+          "created_at": "2020-03-08T20:11:00.000Z"
+        }
+      ]
+    }
   }
 }
