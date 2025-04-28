@@ -20,3 +20,30 @@ exports.selectArticleById = async (articleId) => {
 
   return article;
 };
+
+exports.selectAllArticles = async () => {
+  const { rows: articles } = await db.query(`
+      SELECT
+         atcl.article_id,
+         atcl.title,
+         atcl.topic,
+         atcl.author,
+         atcl.created_at,
+         atcl.votes,
+         atcl.article_img_url,
+         COUNT(comments.comment_id)::INT AS comment_count
+      FROM articles AS atcl
+      LEFT JOIN comments
+         ON atcl.article_id = comments.article_id
+      GROUP BY
+         atcl.article_id
+      ORDER BY
+         atcl.created_at DESC;
+      `);
+
+  if (!articles.length) {
+    throw new ApiError(404, "No articles found");
+  }
+
+  return articles;
+};
