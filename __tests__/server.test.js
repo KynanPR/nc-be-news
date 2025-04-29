@@ -212,3 +212,22 @@ describe("POST /api/articles/:article_id/comments", () => {
     expect(body.message).toBe(`Can't find article with ID: 99999`);
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: Returns nothing successful delete", async () => {
+    const { body } = await testReq(server)
+      .delete("/api/comments/1")
+      .expect(204);
+    expect(body).toBeEmptyObject();
+    const { rows } = await db.query(
+      `SELECT * FROM comments WHERE comment_id = 1`
+    );
+    expect(rows).toBeArrayOfSize(0);
+  });
+  test("404: Returns 'not found' error when there is no such comment", async () => {
+    const { body } = await testReq(server)
+      .delete("/api/comments/99999")
+      .expect(404);
+    expect(body.message).toBe(`Can't find comment with ID: 99999`);
+  });
+});
