@@ -1,6 +1,25 @@
 {
   "GET /api": {
-    "description": "Serves up a JSON representation of all the available endpoints of the API"
+    "description": "Serves up a JSON representation of all the available endpoints of the API",
+    "exampleResponse": {
+      "GET /api/something": {
+        "description": "Serves something",
+        "queries": [],
+        "exampleResponse": {
+          "somethings": { "name": "something" }
+        }
+      },
+      "POST /api/something": "Updates database with something and serves the added something",
+      "exampleRequestBody": {
+        "thing": "some"
+      },
+      "exampleResponse": {
+        "addedSomething": {
+          "something_id": 123,
+          "thing": "some"
+        }
+      }
+    }
   },
   "GET /api/topics": {
     "description": "Serves an array of all topics",
@@ -33,7 +52,6 @@
       "inc_votes": 10
     },
     "exampleResponse": {
-      "message": "Added comment to article with ID: 5",
       "updatedArticle": {
         "article_id": 1,
         "title": "Title of Article",
@@ -64,7 +82,6 @@
   "GET /api/articles/:article_id/comments": {
     "description": "Serves an array of all comments on specified article",
     "exampleResponse": {
-      "message": "All comments on article of ID: 23",
       "comments": [
         {
           "comment_id": 5,
@@ -92,7 +109,6 @@
       "body": "I am Groot!"
     },
     "exampleResponse": {
-      "message": "Added comment to article with ID: 5",
       "comment": {
         "comment_id": 5,
         "article_id": 23,

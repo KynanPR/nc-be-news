@@ -12,7 +12,6 @@ exports.getArticleById = async (req, res, next) => {
   try {
     const article = await selectArticleById(article_id);
     const resBody = {
-      message: `Data for article ${article_id}`,
       article,
     };
 
@@ -32,7 +31,6 @@ exports.patchArticleById = async (req, res, next) => {
     const updatedArticle = await updateArticleById(article_id, inc_votes);
 
     const resBody = {
-      message: `Updated votes on article with ID: ${article_id}`,
       updatedArticle,
     };
     res.json(resBody);
@@ -45,7 +43,6 @@ exports.getAllArticles = async (req, res, next) => {
   try {
     const articles = await selectAllArticles();
     const resBody = {
-      message: "All articles",
       articles,
     };
 
@@ -63,7 +60,6 @@ exports.getCommentsOfArticle = async (req, res, next) => {
 
     const comments = await selectCommentsOfArticle(article_id);
     const resBody = {
-      message: `All comments on article of ID: ${article_id}`,
       comments,
     };
     res.json(resBody);
@@ -82,7 +78,6 @@ exports.postCommentOnArticle = async (req, res, next) => {
     const postedComment = await insertCommentOnArticle(article_id, comment);
 
     const resBody = {
-      message: `Added comment to article with ID: ${article_id}`,
       postedComment,
     };
     res.status(201).json(resBody);
