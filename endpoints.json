@@ -63,5 +63,23 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Adds comment to specied article and serves the added comment",
+    "exampleRequestBody": {
+      "username": "Groot",
+      "body": "I am Groot!"
+    },
+    "exampleResponse": {
+      "message": "Added comment to article with ID: 5",
+      "comment": {
+        "comment_id": 5,
+        "article_id": 23,
+        "body": "I am Groot!",
+        "votes": 0,
+        "author": "Groot",
+        "created_at": "2025-04-29T20:11:00.000Z"
+      }
+    }
   }
 }
