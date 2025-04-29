@@ -102,5 +102,9 @@
         "created_at": "2025-04-29T20:11:00.000Z"
       }
     }
+  },
+
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes specified comment. Responds with nothing"
   }
 }
