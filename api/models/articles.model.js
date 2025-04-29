@@ -21,6 +21,24 @@ exports.selectArticleById = async (articleId) => {
   return article;
 };
 
+exports.updateArticleById = async (articleId, voteIncAmount) => {
+  const {
+    rows: [updatedArticle],
+  } = await db.query(
+    `
+    UPDATE articles
+    SET
+      votes = votes + $2
+    WHERE
+      article_id = $1
+    RETURNING *;
+    `,
+    [articleId, voteIncAmount]
+  );
+
+  return updatedArticle;
+};
+
 exports.selectAllArticles = async () => {
   const { rows: articles } = await db.query(`
       SELECT

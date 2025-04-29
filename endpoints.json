@@ -27,6 +27,25 @@
       ]
     }
   },
+  "PATCH /api/articles/:article_id": {
+    "description": "Updated the votes on specified article. Serves the entire updated article",
+    "exampleRequestBody": {
+      "inc_votes": 10
+    },
+    "exampleResponse": {
+      "message": "Added comment to article with ID: 5",
+      "updatedArticle": {
+        "article_id": 1,
+        "title": "Title of Article",
+        "topic": "interesting",
+        "author": "Author McAuthorface",
+        "body": "This article used to have 100 votes",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": 110,
+        "article_img_url": "https://AVeryRealUrl.trust"
+      }
+    }
+  },
   "GET /api/articles": {
     "description": "Serves an array of all articles without their body, sorted decending by creation",
     "exampleResponse": {
