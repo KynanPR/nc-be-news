@@ -5,6 +5,7 @@ const {
   getArticleById,
   getAllArticles,
   getCommentsOfArticle,
+  postCommentOnArticle,
 } = require("./controllers/articles.controller");
 const server = express();
 
@@ -19,6 +20,8 @@ server.get("/api/articles/:article_id", getArticleById);
 server.get("/api/articles", getAllArticles);
 
 server.get("/api/articles/:article_id/comments", getCommentsOfArticle);
+
+server.post("/api/articles/:article_id/comments", postCommentOnArticle);
 
 server.use((err, req, res, next) => {
   if (err.status && err.message) {

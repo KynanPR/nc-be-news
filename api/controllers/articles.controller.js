@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectAllArticles,
   selectCommentsOfArticle,
+  insertCommentOnArticle,
 } = require("../models/articles.model");
 
 exports.getArticleById = async (req, res, next) => {
@@ -46,6 +47,25 @@ exports.getCommentsOfArticle = async (req, res, next) => {
       comments,
     };
     res.json(resBody);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postCommentOnArticle = async (req, res, next) => {
+  try {
+    const { article_id } = req.params;
+    const comment = req.body;
+
+    await selectArticleById(article_id);
+
+    const postedComment = await insertCommentOnArticle(article_id, comment);
+
+    const resBody = {
+      message: `Added comment to article with ID: ${article_id}`,
+      postedComment,
+    };
+    res.status(201).json(resBody);
   } catch (error) {
     next(error);
   }
