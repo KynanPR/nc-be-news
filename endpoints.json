@@ -103,8 +103,24 @@
       }
     }
   },
-
   "DELETE /api/comments/:comment_id": {
     "description": "Deletes specified comment. Responds with nothing"
+  },
+  "GET /api/users": {
+    "description": "Serves array of all users",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "Groot",
+          "name": "GROOT!",
+          "avatar_url": "https://images.iamgroot.co.uk/groot"
+        },
+        {
+          "username": "Steve",
+          "name": "Steve McSteve",
+          "avatar_url": "https://images.iamgroot.co.uk/notGroot"
+        }
+      ]
+    }
   }
 }

@@ -40,6 +40,12 @@ const commentShape = {
   created_at: expect.toBeDateString(),
 };
 
+const userShape = {
+  username: expect.toBeString(),
+  name: expect.toBeString(),
+  avatar_url: expect.toBeString(),
+};
+
 describe("Bad Endpoint", () => {
   test("404: Responds with not found message", async () => {
     const { body } = await testReq(server)
@@ -229,5 +235,22 @@ describe("DELETE /api/comments/:comment_id", () => {
       .delete("/api/comments/99999")
       .expect(404);
     expect(body.message).toBe(`Can't find comment with ID: 99999`);
+  });
+});
+
+describe("GET /api/users", () => {
+  test("200: Responds with array of all users", async () => {
+    const {
+      body: { users },
+    } = await testReq(server).get("/api/users").expect(200);
+    expect(users).toBeArrayOfSize(4);
+    users.forEach((user) => {
+      expect(user).toMatchObject(userShape);
+    });
+  });
+  test("404: Responds with a 'none found' error when there are no users in database", async () => {
+    await db.query(`DELETE FROM users;`);
+    const { body } = await testReq(server).get("/api/users").expect(404);
+    expect(body.message).toBe("No users found");
   });
 });
