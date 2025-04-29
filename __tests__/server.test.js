@@ -161,3 +161,28 @@ describe("GET /api/articles/:article_id/comments", () => {
     expect(body.message).toBe(`Can't find article with ID: 99999`);
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Responds with posted comment", async () => {
+    const {
+      body: { postedComment },
+    } = await testReq(server)
+      .post("/api/articles/3/comments")
+      .send({ username: "rogersop", body: "This is a comment" })
+      .expect(201);
+    expect(postedComment).toMatchObject(commentShape);
+    expect(postedComment.author).toBe("rogersop");
+    expect(postedComment.body).toBe("This is a comment");
+  });
+  test("404: Responds with a 'no such article' error if specifed article doesn't exist", async () => {
+    const { body } = await testReq(server)
+      .post("/api/articles/99999/comments")
+      .send({
+        username: "rogersop",
+        body: "This is a comment that will never be added",
+      })
+      .expect(404);
+
+    expect(body.message).toBe(`Can't find article with ID: 99999`);
+  });
+});
