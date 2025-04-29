@@ -6,6 +6,7 @@ const {
   getAllArticles,
   getCommentsOfArticle,
   postCommentOnArticle,
+  patchArticleById,
 } = require("./controllers/articles.controller");
 const server = express();
 
@@ -16,6 +17,8 @@ server.get("/api", getApiEndpoints);
 server.get("/api/topics", getAllTopics);
 
 server.get("/api/articles/:article_id", getArticleById);
+
+server.patch("/api/articles/:article_id", patchArticleById);
 
 server.get("/api/articles", getAllArticles);
 

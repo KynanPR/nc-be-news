@@ -104,6 +104,32 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
+describe("PATCH /api/articles/:article_id", () => {
+  test.each([
+    [0, 100],
+    [10, 110],
+    [-25, 75],
+  ])(
+    "200: Responds with the entire updated article with correct updated vote count",
+    async (voteIncAmount, expctedUpdatedVotes) => {
+      const {
+        body: { updatedArticle },
+      } = await testReq(server)
+        .patch("/api/articles/1")
+        .send({ inc_votes: voteIncAmount })
+        .expect(200);
+      expect(updatedArticle).toMatchObject(fullArticleShape);
+      expect(updatedArticle.votes).toBe(expctedUpdatedVotes);
+    }
+  );
+  test("404: Responds with 'not found' error when specified article doesn't exist", async () => {
+    const { body } = await testReq(server)
+      .get("/api/articles/99999")
+      .expect(404);
+    expect(body.message).toBe("Can't find article with ID: 99999");
+  });
+});
+
 describe("GET /api/articles", () => {
   test("200: Responds with array of all articles sorted by date without article body", async () => {
     const {
