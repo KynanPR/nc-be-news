@@ -64,8 +64,8 @@
       }
     }
   },
-  "GET /api/articles?sort_by=columnToSortBy&order='ASC||DESC'": {
-    "description": "Serves an array of all articles without their body, sorted by the specified column (default: created_at) in the spcified order direction (default: DESC)",
+  "GET /api/articles?sort_by=columnToSortBy&order='ASC||DESC'&topic=topicToFilterBy": {
+    "description": "Serves an array of articles  without their body: Filtered by specified topic (default: no filter); sorted by the specified column (default: created_at); in the spcified order direction (default: DESC)",
     "exampleResponse": {
       "articles": [
         {

@@ -167,7 +167,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
 });
 
-describe("GET /api/articles", () => {
+describe.only("GET /api/articles", () => {
   test("200: Responds with array of all articles sorted by date without article body", async () => {
     const {
       body: { articles },
@@ -193,7 +193,7 @@ describe("GET /api/articles", () => {
     expect(body.message).toBe("No articles found");
   });
 
-  describe("sort_by query", () => {
+  describe("sort_by sort query", () => {
     test.each([
       ["article_id"],
       ["title"],
@@ -228,7 +228,7 @@ describe("GET /api/articles", () => {
       }
     );
   });
-  describe("order query", () => {
+  describe("order sort query", () => {
     test.each([["ASC"], ["DESC"]])(
       "200: Responds with array of all articles, ordered in specified direction: %s",
       async (orderDirection) => {
@@ -254,7 +254,7 @@ describe("GET /api/articles", () => {
       }
     );
   });
-  describe("sort_by & order query", () => {
+  describe("sort_by & order sort queries", () => {
     test.each([
       "sort_by=comment_count&order=ASC",
       "order=ASC&sort_by=comment_count",
@@ -271,6 +271,25 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSortedBy("comment_count", { ascending: true });
       }
     );
+  });
+  describe("topic filter query", () => {
+    test("200: Responds with array of articles filtered by specified topic", async () => {
+      const {
+        body: { articles },
+      } = await testReq(server).get("/api/articles?topic=mitch").expect(200);
+
+      expect(articles).toBeArrayOfSize(12);
+      expect(articles).toSatisfyAll((article) => article.topic === "mitch");
+    });
+    test("404: Responds with a 'none found' error message when no articles with specified topic exist", async () => {
+      const { body } = await testReq(server)
+        .get("/api/articles?topic=boringstuff")
+        .expect(404);
+
+      expect(body.message).toBe(
+        "Can't find any articles with topic: boringstuff"
+      );
+    });
   });
 });
 

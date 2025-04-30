@@ -43,9 +43,9 @@ exports.patchArticleById = async (req, res, next) => {
 
 exports.getAllArticles = async (req, res, next) => {
   try {
-    const { sort_by, order } = req.query;
+    const { sort_by, order, topic } = req.query;
 
-    const articles = await selectAllArticles(sort_by, order);
+    const articles = await selectAllArticles(sort_by, order, topic);
     const resBody = {
       articles,
     };
