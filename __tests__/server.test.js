@@ -90,6 +90,8 @@ describe("GET /api/articles/:article_id", () => {
     } = await testReq(server).get("/api/articles/1").expect(200);
 
     expect(article).toMatchObject(fullArticleShape);
+    expect(article.comment_count).toBeInteger();
+    expect(article.comment_count).not.toBeNegative();
     expect(article).toEqual({
       article_id: 1,
       title: "Living in the shadow of a great man",
@@ -100,7 +102,15 @@ describe("GET /api/articles/:article_id", () => {
       votes: 100,
       article_img_url:
         "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      comment_count: 11,
     });
+  });
+  test("200: Responds with article.comment_count : 0 when no comments", async () => {
+    await db.query(`DELETE FROM comments WHERE article_id = 1`);
+    const {
+      body: { article },
+    } = await testReq(server).get("/api/articles/1").expect(200);
+    expect(article.comment_count).toBe(0);
   });
   test("404: Responds with 'not found' error", async () => {
     const { body } = await testReq(server)
@@ -167,7 +177,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
 });
 
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("200: Responds with array of all articles sorted by date without article body", async () => {
     const {
       body: { articles },
@@ -176,7 +186,8 @@ describe.only("GET /api/articles", () => {
     expect(articles).toHaveLength(13);
     articles.forEach((article) => {
       expect(article).toMatchObject(partArticleShape);
-      expect(typeof article.comment_count).toBe("number");
+      expect(article.comment_count).toBeInteger();
+      expect(article.comment_count).not.toBeNegative();
       expect(article).not.toHaveProperty("body");
     });
     const sorted = articles.toSorted((thisArticle, nextArticle) => {

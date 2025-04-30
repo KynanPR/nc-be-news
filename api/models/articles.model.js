@@ -7,10 +7,16 @@ exports.selectArticleById = async (articleId) => {
     rows: [article],
   } = await db.query(
     `
-      SELECT *
-      FROM articles
-      WHERE
-         article_id = $1
+    SELECT
+      atcl.*,
+      COUNT(comments.comment_id)::INT AS comment_count
+    FROM articles AS atcl
+    LEFT JOIN comments
+      ON atcl.article_id = comments.article_id
+    WHERE
+      atcl.article_id = $1
+    GROUP BY
+      atcl.article_id;
       `,
     [articleId]
   );
@@ -67,22 +73,22 @@ exports.selectAllArticles = async (
   const sql = format(
     `
     SELECT
-    atcl.article_id,
-    atcl.title,
-    atcl.topic,
-    atcl.author,
-    atcl.created_at,
-    atcl.votes,
-    atcl.article_img_url,
+      atcl.article_id,
+      atcl.title,
+      atcl.topic,
+      atcl.author,
+      atcl.created_at,
+      atcl.votes,
+      atcl.article_img_url,
     COUNT(comments.comment_id)::INT AS comment_count
     FROM articles AS atcl
     LEFT JOIN comments
-    ON atcl.article_id = comments.article_id
+      ON atcl.article_id = comments.article_id
     ${whereClause}
     GROUP BY
-    atcl.article_id
+      atcl.article_id
     ORDER BY
-    %s%I %s;
+      %s%I %s;
     `,
     tableName,
     sortByColumn,
