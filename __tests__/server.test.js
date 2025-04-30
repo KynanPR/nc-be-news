@@ -108,6 +108,10 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404);
     expect(body.message).toBe("Can't find article with ID: 99999");
   });
+  test("400: Responds with generic 'bad request' error when the article_id is in someway invalid", async () => {
+    const { body } = await testReq(server).get("/api/articles/no1").expect(400);
+    expect(body.message).toBe("Bad Request");
+  });
 });
 
 describe("PATCH /api/articles/:article_id", () => {
@@ -133,6 +137,33 @@ describe("PATCH /api/articles/:article_id", () => {
       .get("/api/articles/99999")
       .expect(404);
     expect(body.message).toBe("Can't find article with ID: 99999");
+  });
+  test("400: Responds with generic 'bad request' error when the article_id is in some way invalid", async () => {
+    const { body } = await testReq(server)
+      .patch("/api/articles/no10")
+      .send({ inc_votes: 10 })
+      .expect(400);
+    expect(body.message).toBe("Bad Request");
+  });
+  test("400: Responds with generic 'bad request' error when the request body is in some way invalid", async () => {
+    const { body: badKeyBody } = await testReq(server)
+      .patch("/api/articles/1")
+      .send({ voteInc: 10 })
+      .expect(400);
+    expect(badKeyBody.message).toBe("Bad Request");
+
+    const { body: badValueBody } = await testReq(server)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 5.5 })
+      .expect(400);
+
+    expect(badValueBody.message).toBe("Bad Request");
+
+    const { body: noKeyBody } = await testReq(server)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400);
+    expect(noKeyBody.message).toBe("Bad Request");
   });
 });
 
@@ -192,6 +223,13 @@ describe("GET /api/articles/:article_id/comments", () => {
 
     expect(body.message).toBe(`Can't find article with ID: 99999`);
   });
+  test("400: Responds with generic 'bad request' error when the article_id is in some way invaild", async () => {
+    const { body } = await testReq(server)
+      .get("/api/articles/notanumber/comments")
+      .expect(400);
+
+    expect(body.message).toBe(`Bad Request`);
+  });
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
@@ -217,6 +255,33 @@ describe("POST /api/articles/:article_id/comments", () => {
 
     expect(body.message).toBe(`Can't find article with ID: 99999`);
   });
+  test("400: Responds with generic 'bad request' error when the article_id is in some way invalid", async () => {
+    const { body } = await testReq(server)
+      .post("/api/articles/notanumber/comments")
+      .send({ username: "rogersop", body: "This is a comment" })
+      .expect(400);
+    expect(body.message).toBe("Bad Request");
+  });
+  test("400: Responds with generic 'bad request' error when the request body is in some way invalid", async () => {
+    const { body: notAUserBody } = await testReq(server)
+      .post("/api/articles/3/comments")
+      .send({ username: "notyetauser", body: "This is a comment" })
+      .expect(400);
+    expect(notAUserBody.message).toBe("Bad Request");
+
+    const { body: wrongMissingKeysBody } = await testReq(server)
+      .post("/api/articles/3/comments")
+      .send({ nameofuser: "rogersop" })
+      .expect(400);
+    expect(wrongMissingKeysBody.message).toBe("Bad Request");
+  });
+  test("400: Responds with 'no empty comments' error when comment body is empty", async () => {
+    const { body } = await testReq(server)
+      .post("/api/articles/3/comments")
+      .send({ username: "rogersop", body: "" })
+      .expect(400);
+    expect(body.message).toBe("Comment must not be empty");
+  });
 });
 
 describe("DELETE /api/comments/:comment_id", () => {
@@ -235,6 +300,12 @@ describe("DELETE /api/comments/:comment_id", () => {
       .delete("/api/comments/99999")
       .expect(404);
     expect(body.message).toBe(`Can't find comment with ID: 99999`);
+  });
+  test("400: Responds with generic 'bad request' error when the comment_id is in some way invalid", async () => {
+    const { body } = await testReq(server)
+      .delete("/api/comments/no1")
+      .expect(400);
+    expect(body.message).toBe("Bad Request");
   });
 });
 
