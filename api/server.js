@@ -39,7 +39,10 @@ server.use((err, req, res, next) => {
 });
 
 server.use((err, req, res, next) => {
-  if (err.code === "22P02") {
+  // const dbErrorCodes = ["23502", "22P02"];
+
+  // if (dbErrorCodes.includes(err.code)) {
+  if (err.code) {
     res.status(400).json({ message: "Bad Request" });
   } else next(err);
 });

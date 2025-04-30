@@ -6,6 +6,8 @@ const {
   updateArticleById,
 } = require("../models/articles.model");
 
+const { ApiError } = require("../../utils");
+
 exports.getArticleById = async (req, res, next) => {
   const { article_id } = req.params;
 
@@ -72,6 +74,10 @@ exports.postCommentOnArticle = async (req, res, next) => {
   try {
     const { article_id } = req.params;
     const comment = req.body;
+
+    if (comment.body === "") {
+      throw new ApiError(400, "Comment must not be empty");
+    }
 
     await selectArticleById(article_id);
 
