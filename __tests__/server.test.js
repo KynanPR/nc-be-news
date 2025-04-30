@@ -192,6 +192,86 @@ describe("GET /api/articles", () => {
 
     expect(body.message).toBe("No articles found");
   });
+
+  describe("sort_by query", () => {
+    test.each([
+      ["article_id"],
+      ["title"],
+      ["topic"],
+      ["author"],
+      ["created_at"],
+      ["votes"],
+      ["article_img_url"],
+      ["comment_count"],
+    ])(
+      "200: Responds with array of all articles sorted by specified column: %s",
+      async (sortByColumn) => {
+        const {
+          body: { articles },
+        } = await testReq(server)
+          .get(`/api/articles?sort_by=${sortByColumn}`)
+          .expect(200);
+        expect(articles).toBeArrayOfSize(13);
+
+        expect(articles).toBeSortedBy(sortByColumn, {
+          descending: true,
+        });
+      }
+    );
+    test.each(["notareal_column", "votes DESC ; DROP ALL TABLES;", ""])(
+      "400: Responds with generic 'bad request' error message when the sort_by collumn is in some way invalid - %s",
+      async (sortByColumn) => {
+        const { body } = await testReq(server)
+          .get(`/api/articles?sort_by=${sortByColumn}`)
+          .expect(400);
+        expect(body.message).toBe("Bad Request");
+      }
+    );
+  });
+  describe("order query", () => {
+    test.each([["ASC"], ["DESC"]])(
+      "200: Responds with array of all articles, ordered in specified direction: %s",
+      async (orderDirection) => {
+        const {
+          body: { articles },
+        } = await testReq(server)
+          .get(`/api/articles?order=${orderDirection}`)
+          .expect(200);
+        expect(articles).toBeArrayOfSize(13);
+
+        const sortOptions =
+          orderDirection === "ASC" ? { ascending: true } : { descending: true };
+        expect(articles).toBeSortedBy("created_at", sortOptions);
+      }
+    );
+    test.each(["notan_order", "DESC ; DROP ALL TABLES;", ""])(
+      "400: Responds with generic 'bad request' error message when the sort_by collumn is in some way invalid - %s",
+      async (orderDirection) => {
+        const { body } = await testReq(server)
+          .get(`/api/articles?sort_by=${orderDirection}`)
+          .expect(400);
+        expect(body.message).toBe("Bad Request");
+      }
+    );
+  });
+  describe("sort_by & order query", () => {
+    test.each([
+      "sort_by=comment_count&order=ASC",
+      "order=ASC&sort_by=comment_count",
+    ])(
+      "200: Responds with array of all articles, sorted by specified colunm in specified order direction. Query order agnostic - %s",
+      async () => {
+        const {
+          body: { articles },
+        } = await testReq(server)
+          .get(`/api/articles?sort_by=comment_count&order=ASC`)
+          .expect(200);
+        expect(articles).toBeArrayOfSize(13);
+
+        expect(articles).toBeSortedBy("comment_count", { ascending: true });
+      }
+    );
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
