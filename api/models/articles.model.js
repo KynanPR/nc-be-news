@@ -42,8 +42,27 @@ exports.updateArticleById = async (articleId, voteIncAmount) => {
 
 exports.selectAllArticles = async (
   sortByColumn = "created_at",
-  orderDirection = "DESC"
+  orderDirection = "DESC",
+  topicFilter
 ) => {
+  let whereClause = "";
+  if (topicFilter) {
+    const { rows } = await db.query(
+      `SELECT * FROM articles WHERE topic = $1;`,
+      [topicFilter]
+    );
+    const topicExists = rows.length !== 0;
+
+    if (!topicExists) {
+      throw new ApiError(
+        404,
+        `Can't find any articles with topic: ${topicFilter}`
+      );
+    }
+
+    whereClause = format(`WHERE atcl.topic = %L`, topicFilter);
+  }
+
   const tableName = sortByColumn === "comment_count" ? "" : "atcl.";
   const sql = format(
     `
@@ -59,6 +78,7 @@ exports.selectAllArticles = async (
     FROM articles AS atcl
     LEFT JOIN comments
     ON atcl.article_id = comments.article_id
+    ${whereClause}
     GROUP BY
     atcl.article_id
     ORDER BY
