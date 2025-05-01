@@ -25,4 +25,7 @@ It is a REST API simulating the backend of a news site
 
 ## My Hosted Verson
 
-You can access and use the api here - https://nc-news-29kn.onrender.com/api
+You can access and use the api here - https://nc-news-29kn.onrender.com/api  
+
+Please not that this is running on a free tier of Render so after a short period of inactivity the service gets slept.  
+Expect to wait up to a minute on first access for it to be spun back up
