@@ -5,6 +5,7 @@ const {
   insertArticleData,
   insertCommentData,
 } = require("./insertData");
+const { updateTopicsCache } = require("../utils");
 
 const seed = async ({ topicData, userData, articleData, commentData }) => {
   await dropTables();
@@ -18,6 +19,8 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
   await Promise.all(nonDependantInsertQueries);
   await insertArticleData(articleData);
   await insertCommentData(commentData);
+
+  await updateTopicsCache();
 
   return;
 };
