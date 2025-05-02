@@ -309,6 +309,120 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  describe("201: Responds with posted article", () => {
+    test("Topic exists and img_url provided", async () => {
+      const {
+        body: { postedArticle },
+      } = await testReq(server)
+        .post("/api/articles")
+        .send({
+          author: "icellusedkars",
+          title: "Best Cars to Buy Right Now",
+          body: "They're all used",
+          topic: "paper",
+          article_img_url: "https://www.totally.real/trust.png",
+        })
+        .expect(201);
+      expect(postedArticle).toMatchObject(fullArticleShape);
+      expect(postedArticle).toMatchObject({
+        author: "icellusedkars",
+        title: "Best Cars to Buy Right Now",
+        body: "They're all used",
+        topic: "paper",
+        votes: 0,
+        article_img_url: "https://www.totally.real/trust.png",
+      });
+    });
+    test("Topic doesn't already exist -> given topic is created", async () => {
+      const {
+        body: { postedArticle },
+      } = await testReq(server)
+        .post("/api/articles")
+        .send({
+          author: "icellusedkars",
+          title: "Best Cars to Buy Right Now",
+          body: "They're all used",
+          topic: "Used Cars",
+          article_img_url: "https://www.totally.real/trust.png",
+        })
+        .expect(201);
+      expect(postedArticle).toMatchObject(fullArticleShape);
+      expect(postedArticle.topic).toBe("Used Cars");
+
+      const { rows } = await db.query(
+        `SELECT * FROM topics WHERE slug = 'Used Cars';`
+      );
+      expect(rows.length).toBe(1);
+    });
+    test("Not given img_url -> defaults", async () => {
+      const {
+        body: { postedArticle },
+      } = await testReq(server)
+        .post("/api/articles")
+        .send({
+          author: "icellusedkars",
+          title: "Best Cars to Buy Right Now",
+          body: "They're all used",
+          topic: "Used Cars",
+        })
+        .expect(201);
+      expect(postedArticle).toMatchObject(fullArticleShape);
+      expect(postedArticle.article_img_url).toBe(
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      );
+    });
+  });
+  test("400: Responds with generic 'bad request' error when the request body is in some way invalid", async () => {
+    const { body: notAUserBody } = await testReq(server)
+      .post("/api/articles")
+      .send({
+        author: "noone",
+        title: "Best Cars to Buy Right Now",
+        body: "They're all used",
+        topic: "paper",
+        article_img_url: "https://www.totally.real/trust.png",
+      })
+      .expect(400);
+    expect(notAUserBody.message).toBe("Bad Request");
+
+    const { body: wrongMissingKeysBody } = await testReq(server)
+      .post("/api/articles/3/comments")
+      .send({ nameofuser: "rogersop" })
+      .expect(400);
+    expect(wrongMissingKeysBody.message).toBe("Bad Request");
+  });
+  test("400: Responds with 'no empty articles' error when article body or title is empty", async () => {
+    const { body: missingBody } = await testReq(server)
+      .post("/api/articles")
+      .send({
+        author: "icellusedkars",
+        title: "Best Cars to Buy Right Now",
+        body: "",
+        topic: "paper",
+        article_img_url: "https://www.totally.real/trust.png",
+      })
+      .expect(400);
+    expect(missingBody.message).toBe(
+      "Article title and body must not be empty"
+    );
+
+    const { body: missingTitle } = await testReq(server)
+      .post("/api/articles")
+      .send({
+        author: "icellusedkars",
+        title: "",
+        body: "Something here",
+        topic: "paper",
+        article_img_url: "https://www.totally.real/trust.png",
+      })
+      .expect(400);
+    expect(missingTitle.message).toBe(
+      "Article title and body must not be empty"
+    );
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200: Responds with array of comments on the specified article sorted decending by creation date", async () => {
     const {
