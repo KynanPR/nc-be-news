@@ -1,6 +1,8 @@
 const db = require("../../db/connection");
 const format = require("pg-format");
 const { ApiError } = require("../../utils");
+const { topicExists } = require("../utils");
+const { insertNewTopic } = require("./topics.model");
 
 exports.selectArticleById = async (articleId) => {
   const {
@@ -53,12 +55,7 @@ exports.selectAllArticles = async (
 ) => {
   let whereClause = "";
   if (topicFilter) {
-    const { rows } = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
-      topicFilter,
-    ]);
-    const topicExists = rows.length !== 0;
-
-    if (!topicExists) {
+    if (!(await topicExists(topicFilter))) {
       throw new ApiError(400, `No such topic: ${topicFilter}`);
     }
 
@@ -99,6 +96,37 @@ exports.selectAllArticles = async (
   }
 
   return articles;
+};
+
+exports.insertNewArticle = async (articleToInsert) => {
+  const defaultUrl =
+    "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700";
+  const {
+    author,
+    title,
+    body,
+    topic,
+    article_img_url = defaultUrl,
+  } = articleToInsert;
+
+  if (!(await topicExists(topic))) {
+    await insertNewTopic({ slug: topic });
+  }
+
+  const {
+    rows: [insertedArticle],
+  } = await db.query(
+    `
+    INSERT INTO articles
+    (title, topic, author, body, article_img_url)
+    VALUES
+    ($1, $2, $3, $4, $5)
+    RETURNING *;
+    `,
+    [title, topic, author, body, article_img_url]
+  );
+
+  return insertedArticle;
 };
 
 exports.selectCommentsOfArticle = async (articleId) => {
