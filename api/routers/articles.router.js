@@ -9,12 +9,14 @@ const articlesRouter = require("express").Router();
 
 articlesRouter.get("/", getAllArticles);
 
-articlesRouter.get("/:article_id", getArticleById);
+articlesRouter
+  .route("/:article_id")
+  .get(getArticleById)
+  .patch(patchArticleById);
 
-articlesRouter.patch("/:article_id", patchArticleById);
-
-articlesRouter.get("/:article_id/comments", getCommentsOfArticle);
-
-articlesRouter.post("/:article_id/comments", postCommentOnArticle);
+articlesRouter
+  .route("/:article_id/comments")
+  .get(getCommentsOfArticle)
+  .post(postCommentOnArticle);
 
 module.exports = articlesRouter;
