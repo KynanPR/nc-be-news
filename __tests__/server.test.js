@@ -399,6 +399,61 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test.each([
+    [0, 16],
+    [10, 26],
+    [-25, -9],
+  ])(
+    "200: Responds with the entire updated comment with correct updated vote count",
+    async (voteIncAmount, expctedUpdatedVotes) => {
+      const {
+        body: { updatedComment },
+      } = await testReq(server)
+        .patch("/api/comments/1")
+        .send({ inc_votes: voteIncAmount })
+        .expect(200);
+      expect(updatedComment).toMatchObject(commentShape);
+
+      expect(updatedComment.votes).toBe(expctedUpdatedVotes);
+    }
+  );
+  test("404: Responds with 'not found' error when specified comment doesn't exist", async () => {
+    const { body } = await testReq(server)
+      .patch("/api/comments/99999")
+      .send({ inc_votes: 5 })
+      .expect(404);
+    expect(body.message).toBe("Can't find comment with ID: 99999");
+  });
+  test("400: Responds with generic 'bad request' error when the comment_id is in some way invalid", async () => {
+    const { body } = await testReq(server)
+      .patch("/api/comments/no10")
+      .send({ inc_votes: 10 })
+      .expect(400);
+    expect(body.message).toBe("Bad Request");
+  });
+  test("400: Responds with generic 'bad request' error when the request body is in some way invalid", async () => {
+    const { body: badKeyBody } = await testReq(server)
+      .patch("/api/comments/1")
+      .send({ voteInc: 10 })
+      .expect(400);
+    expect(badKeyBody.message).toBe("Bad Request");
+
+    const { body: badValueBody } = await testReq(server)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 5.5 })
+      .expect(400);
+
+    expect(badValueBody.message).toBe("Bad Request");
+
+    const { body: noKeyBody } = await testReq(server)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400);
+    expect(noKeyBody.message).toBe("Bad Request");
+  });
+});
+
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: Returns nothing successful delete", async () => {
     const { body } = await testReq(server)
