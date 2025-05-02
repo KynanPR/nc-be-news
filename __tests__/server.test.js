@@ -292,14 +292,19 @@ describe("GET /api/articles", () => {
       expect(articles).toBeArrayOfSize(12);
       expect(articles).toSatisfyAll((article) => article.topic === "mitch");
     });
-    test("404: Responds with a 'none found' error message when no articles with specified topic exist", async () => {
+    test("404: Responds with a 'no such topic' error message when specifed topic doesn't exist", async () => {
       const { body } = await testReq(server)
         .get("/api/articles?topic=boringstuff")
+        .expect(400);
+
+      expect(body.message).toBe("No such topic: boringstuff");
+    });
+    test("404: Responds with a 'none found' error message when no articles with specified topic exist", async () => {
+      const { body } = await testReq(server)
+        .get("/api/articles?topic=paper")
         .expect(404);
 
-      expect(body.message).toBe(
-        "Can't find any articles with topic: boringstuff"
-      );
+      expect(body.message).toBe("No articles found with topic: paper");
     });
   });
 });
