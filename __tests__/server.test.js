@@ -440,3 +440,25 @@ describe("GET /api/users", () => {
     expect(body.message).toBe("No users found");
   });
 });
+
+describe("GET /api/users/:username", () => {
+  test("200: Responds with specified user object", async () => {
+    const {
+      body: { user },
+    } = await testReq(server).get("/api/users/lurker").expect(200);
+
+    expect(user).toEqual({
+      username: "lurker",
+      name: "do_nothing",
+      avatar_url:
+        "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+    });
+  });
+  test("404: Responds with 'not found' error when the specified user doesn't exist", async () => {
+    const { body } = await testReq(server)
+      .get("/api/users/Idontexist")
+      .expect(404);
+
+    expect(body.message).toBe("Can't find user with username: Idontexist");
+  });
+});
