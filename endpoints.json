@@ -151,5 +151,15 @@
         }
       ]
     }
+  },
+  "GET /api/users/:username": {
+    "description": "Serves user object with specified username",
+    "exampleResponse": {
+      "user": {
+        "username": "Groot",
+        "name": "GROOT!",
+        "avatar_url": "https://images.iamgroot.co.uk/groot"
+      }
+    }
   }
 }
