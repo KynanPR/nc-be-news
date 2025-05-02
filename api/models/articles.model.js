@@ -53,17 +53,13 @@ exports.selectAllArticles = async (
 ) => {
   let whereClause = "";
   if (topicFilter) {
-    const { rows } = await db.query(
-      `SELECT * FROM articles WHERE topic = $1;`,
-      [topicFilter]
-    );
+    const { rows } = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
+      topicFilter,
+    ]);
     const topicExists = rows.length !== 0;
 
     if (!topicExists) {
-      throw new ApiError(
-        404,
-        `Can't find any articles with topic: ${topicFilter}`
-      );
+      throw new ApiError(400, `No such topic: ${topicFilter}`);
     }
 
     whereClause = format(`WHERE atcl.topic = %L`, topicFilter);
@@ -98,7 +94,8 @@ exports.selectAllArticles = async (
   const { rows: articles } = await db.query(sql);
 
   if (!articles.length) {
-    throw new ApiError(404, "No articles found");
+    const topicHint = topicFilter ? ` with topic: ${topicFilter}` : "";
+    throw new ApiError(404, `No articles found${topicHint}`);
   }
 
   return articles;
